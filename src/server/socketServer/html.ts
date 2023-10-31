@@ -1,5 +1,8 @@
 import { isDev } from '../../shared/env.js';
 import type { Request, Response, RequestHandler } from 'express';
+import axios from 'axios';
+import { logger } from '../../shared/logger.js';
+import { ConnectorsResponse, httpsAgent } from '../../shared/interfaces.js';
 
 const jsFiles = isDev ? ['iframe', 'dev', 'wetty'] : ['iframe', 'wetty'];
 const cssFiles = ['styles', 'options', 'overlay', 'terminal'];
@@ -43,10 +46,43 @@ const render = (
   </body>
 </html>`;
 
-export const html = (base: string, title: string): RequestHandler => (
+export const html = (base: string, title: string): RequestHandler => async (
   req: Request,
   res: Response,
-): void => {
+  ): Promise<void> => {
+    let urlS = req.headers['referer'] || req.headers['referer-fallback'];
+    if (!urlS) {
+      res.status(400).send("Bad Request: Referer was empty")
+      return;
+    }
+    let url = new URL(`${urlS}`);
+    let parts = url.pathname.split('/');
+    try {
+      await axios.get<ConnectorsResponse>(
+        `${process.env.MDCAP_ENGINE_URL}/element/_internal/wetty/${parts[parts.length - 1]}`,
+        {
+          headers: {
+            "Authorization": `${req.headers.authorization}`
+          },
+          responseType: 'json',
+          httpsAgent,
+        },
+      );
+    } catch (error) {
+      const { request, response, message } = error as any;
+      if (response) {
+        const { status, data } = response;
+        logger().error('errEngine', { status, data });
+        res.status(status).send(data);
+      } else if (request) {
+        logger().error('errEngine', request);
+        res.status(500).send("No response from engine");
+      } else {
+        logger().error('errEngine', message);
+        res.status(500).send(message);
+      }
+      return;
+    }
   res.send(
     render(
       title,

@@ -1,5 +1,9 @@
 import type winston from 'winston';
+import https from 'https';
 
+export const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 export interface SSH {
   [s: string]: string | number | boolean | undefined;
   user: string;

@@ -5,8 +5,7 @@
 import express from 'express';
 import gc from 'gc-stats';
 import axios from 'axios';
-import https from 'https';
-import type { ConnectorsResponse, SSH, SSL, Server } from './shared/interfaces.js';
+import { httpsAgent, type ConnectorsResponse, type SSH, type SSL, type Server } from './shared/interfaces.js';
 import { getCommand, generateCommand } from './server/command.js';
 import { Gauge, collectDefaultMetrics } from 'prom-client';
 import { getCommand } from './server/command.js';
@@ -27,9 +26,6 @@ import type SocketIO from 'socket.io';
 export * from './shared/interfaces.js';
 export { logger as getLogger } from './shared/logger.js';
 
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
 
 const wettyConnections = new Gauge({
   name: 'wetty_connections',
