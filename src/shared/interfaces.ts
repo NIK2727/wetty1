@@ -47,10 +47,7 @@ export interface Config {
 }
 
 export interface ConnectorsResponse {
-  connectors: Connectors
-  url: string
-  username: string
-  password: string
+  spec:Spec
 }
 
 
@@ -69,4 +66,8 @@ export interface Ssh {
   sshhost: string
   password: string
   username: string
+}
+
+export interface Spec {
+  connectors: Connectors
 }

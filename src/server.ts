@@ -85,7 +85,7 @@ export async function decorateServerWithSsh(
     let parts = urll.pathname.split('/');
     try {
       let engineResponse = await axios.get<ConnectorsResponse>(
-        `${process.env.MDCAP_ENGINE_URL}/element/_internal/wetty/${parts[parts.length - 1]}`,
+        `${process.env.MDCAP_ENGINE_URL}/element/${parts[parts.length - 1]}`,
         {
           headers: {
             "Authorization": `${socket.request.headers.authorization}`

@@ -59,7 +59,7 @@ export const html = (base: string, title: string): RequestHandler => async (
     let parts = url.pathname.split('/');
     try {
       await axios.get<ConnectorsResponse>(
-        `${process.env.MDCAP_ENGINE_URL}/element/_internal/wetty/${parts[parts.length - 1]}`,
+        `${process.env.MDCAP_ENGINE_URL}/element/${parts[parts.length - 1]}`,
         {
           headers: {
             "Authorization": `${req.headers.authorization}`

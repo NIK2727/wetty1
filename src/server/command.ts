@@ -73,25 +73,25 @@ export const generateCommand = (data: ConnectorsResponse, consoleType: string): 
   let command = ''
   switch (consoleType) {
     case 'sshconsole':
-      command = `sshpass -p ${data.connectors.ssh.password} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${data.connectors.ssh.username}@${data.connectors.ssh.sshhost}`;
+      command = `sshpass -p ${data.spec.connectors.ssh.password} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${data.spec.connectors.ssh.username}@${data.spec.connectors.ssh.sshhost}`;
       break;
     case 'ipmiact':
-      command = `ipmitool -I lanplus -H ${data.connectors.bmc.bmchost} -U ${data.connectors.bmc.username} -P ${data.connectors.bmc.password} -e=. sol activate`;
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} -e=. sol activate`;
       break;
     case 'ipmideact':
-      command = `ipmitool -I lanplus -H ${data.connectors.bmc.bmchost} -U ${data.connectors.bmc.username} -P ${data.connectors.bmc.password} -e=. sol deactivate`;
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} -e=. sol deactivate`;
       break;
     case 'ipmi_warm_reset':
-      command = `ipmitool -I lanplus -H ${data.connectors.bmc.bmchost} -U ${data.connectors.bmc.username} -P ${data.connectors.bmc.password} chassis power reset warm`;
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} chassis power reset warm`;
       break;
     case 'ipmi_cold_reset':
-      command = `ipmitool -I lanplus -H ${data.connectors.bmc.bmchost} -U ${data.connectors.bmc.username} -P ${data.connectors.bmc.password} chassis power reset cold`;
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} chassis power reset cold`;
       break;
     case 'ipmi_factory_reset':
-      command = `ipmitool -I lanplus -H ${data.connectors.bmc.bmchost} -U ${data.connectors.bmc.username} -P ${data.connectors.bmc.password} chassis power reset`;
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} chassis power reset`;
       break;
     case 'bmcconsole':
-      command = `sshpass -p ${data.connectors.bmc.password} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${data.connectors.bmc.username}@${data.connectors.bmc.bmchost}`;
+      command = `sshpass -p ${data.spec.connectors.bmc.password} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${data.spec.connectors.bmc.username}@${data.spec.connectors.bmc.bmchost}`;
       break;
     default:
       return '';
