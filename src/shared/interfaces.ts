@@ -41,3 +41,28 @@ export interface Config {
   logLevel: typeof winston.level;
   ssl?: SSL;
 }
+
+export interface ConnectorsResponse {
+  connectors: Connectors
+  url: string
+  username: string
+  password: string
+}
+
+
+export interface Connectors {
+  bmc: Bmc
+  ssh: Ssh
+}
+
+export interface Bmc {
+  bmchost: string
+  password: string
+  username: string
+}
+
+export interface Ssh {
+  sshhost: string
+  password: string
+  username: string
+}

@@ -4,6 +4,10 @@
  */
 import express from 'express';
 import gc from 'gc-stats';
+import axios from 'axios';
+import https from 'https';
+import type { ConnectorsResponse, SSH, SSL, Server } from './shared/interfaces.js';
+import { getCommand, generateCommand } from './server/command.js';
 import { Gauge, collectDefaultMetrics } from 'prom-client';
 import { getCommand } from './server/command.js';
 import { gcMetrics } from './server/metrics.js';
@@ -22,6 +26,10 @@ import type SocketIO from 'socket.io';
 
 export * from './shared/interfaces.js';
 export { logger as getLogger } from './shared/logger.js';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 const wettyConnections = new Gauge({
   name: 'wetty_connections',
@@ -73,6 +81,39 @@ export async function decorateServerWithSsh(
      * @name connection
      */
     logger.info('Connection accepted.');
+    if (!socket.request.headers['referer-fallback']) {
+      socket.emit('error', `${403}: wetty only works in an iframe`);
+      return;
+    }
+    let urll = new URL(`${socket.request.headers['referer-fallback']}`);
+    let parts = urll.pathname.split('/');
+    try {
+      let engineResponse = await axios.get<ConnectorsResponse>(
+        `${process.env.MDCAP_ENGINE_URL}/element/_internal/wetty/${parts[parts.length - 1]}`,
+        {
+          headers: {
+            "Authorization": `${socket.request.headers.authorization}`
+          },
+          responseType: 'json',
+          httpsAgent,
+        },
+      )
+        .then(({ data }) => data);
+      command = generateCommand(engineResponse, `${urll.searchParams.get('console')}`);
+    } catch (error) {
+      const { request, response, message } = error as any;
+      if (response) {
+        const { status, data } = response;
+        logger.error('errEngine', { status, data });
+        socket.emit('error', `${status}: ${data}`);
+      } else if (request) {
+        logger.error('errEngine', request);
+        socket.emit('error', `${500}: No response from engine`);
+      } else {
+        logger.error('errEngine', message);
+        socket.emit('error', `${500}: ${message}`);
+      }
+    }
     wettyConnections.inc();
 
     try {
