@@ -84,18 +84,22 @@ export async function decorateServerWithSsh(
     let urll = new URL(`${socket.request.headers['referer-fallback']}`);
     let parts = urll.pathname.split('/');
     try {
-      let engineResponse = await axios.get<ConnectorsResponse>(
-        `${process.env.MDCAP_ENGINE_URL}/element/${parts[parts.length - 1]}`,
-        {
-          headers: {
-            "Authorization": `${socket.request.headers.authorization}`
+      if (parts[parts.length - 1] === 'playground') {
+        logger.info('Connection Playground');
+      } else {
+        let engineResponse = await axios.get<ConnectorsResponse>(
+          `${process.env.MDCAP_ENGINE_URL}/element/${parts[parts.length - 1]}`,
+          {
+            headers: {
+              "Authorization": `${socket.request.headers.authorization}`
+            },
+            responseType: 'json',
+            httpsAgent,
           },
-          responseType: 'json',
-          httpsAgent,
-        },
-      )
-        .then(({ data }) => data);
-      command = generateCommand(engineResponse, `${urll.searchParams.get('console')}`);
+        )
+          .then(({ data }) => data);
+        command = generateCommand(engineResponse, `${urll.searchParams.get('console')}`);
+      }
     } catch (error) {
       const { request, response, message } = error as any;
       if (response) {
