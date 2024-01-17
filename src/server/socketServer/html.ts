@@ -58,6 +58,10 @@ export const html = (base: string, title: string): RequestHandler => async (
     let url = new URL(`${urlS}`);
     let parts = url.pathname.split('/');
     try {
+      if (parts[parts.length - 1] === 'playground') {
+        logger().info('Connection Playground');
+      }
+      else {
       await axios.get<ConnectorsResponse>(
         `${process.env.MDCAP_ENGINE_URL}/element/${parts[parts.length - 1]}`,
         {
@@ -68,6 +72,7 @@ export const html = (base: string, title: string): RequestHandler => async (
           httpsAgent,
         },
       );
+    }
     } catch (error) {
       const { request, response, message } = error as any;
       if (response) {

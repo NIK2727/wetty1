@@ -8,7 +8,6 @@ import axios from 'axios';
 import { httpsAgent, type ConnectorsResponse, type SSH, type SSL, type Server } from './shared/interfaces.js';
 import { getCommand, generateCommand } from './server/command.js';
 import { Gauge, collectDefaultMetrics } from 'prom-client';
-import { getCommand } from './server/command.js';
 import { gcMetrics } from './server/metrics.js';
 import { server } from './server/socketServer.js';
 import { spawn } from './server/spawn.js';
@@ -19,7 +18,6 @@ import {
   defaultCommand,
 } from './shared/defaults.js';
 import { logger as getLogger } from './shared/logger.js';
-import type { SSH, SSL, Server } from './shared/interfaces.js';
 import type { Express } from 'express';
 import type SocketIO from 'socket.io';
 
@@ -83,6 +81,8 @@ export async function decorateServerWithSsh(
     }
     let urll = new URL(`${socket.request.headers['referer-fallback']}`);
     let parts = urll.pathname.split('/');
+    logger.info('Connection accepted.', {data: parts});
+    logger.info('Connection accepted.', {data: parts[parts.length - 1]});
     try {
       if (parts[parts.length - 1] === 'playground') {
         logger.info('Connection Playground');

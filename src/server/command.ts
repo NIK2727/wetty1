@@ -56,7 +56,7 @@ export async function getCommand(
   }
 
   const sshAddress = await address(socket, user, host);
-  const args = urlArgs(headers.referer || `${headers['referer-fallback']}` = {
+  const args = {
     host: sshAddress,
     port: `${port}`,
     pass: pass || '',
@@ -64,7 +64,7 @@ export async function getCommand(
     auth,
     knownHosts,
     config: config || '',
-    ...urlArgs(referer, { allowRemoteHosts, allowRemoteCommand }),
+    ...(urlArgs(referer, { allowRemoteHosts, allowRemoteCommand })),
   };
   return sshOptions(args, key);
 }
