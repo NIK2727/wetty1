@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { address } from './command/address.js';
 import { loginOptions } from './command/login.js';
 import { sshOptions } from './command/ssh.js';
-import type { SSH } from '../shared/interfaces';
+import type { ConnectorsResponse, SSH } from '../shared/interfaces';
 import type { Socket } from 'socket.io';
 
 const localhost = (host: string): boolean =>
@@ -64,7 +64,37 @@ export async function getCommand(
     auth,
     knownHosts,
     config: config || '',
-    ...urlArgs(referer, { allowRemoteHosts, allowRemoteCommand }),
+    ...(urlArgs(referer, { allowRemoteHosts, allowRemoteCommand })),
   };
   return sshOptions(args, key);
+}
+
+export const generateCommand = (data: ConnectorsResponse, consoleType: string): string => {
+  let command = ''
+  switch (consoleType) {
+    case 'sshconsole':
+      command = `sshpass -p ${data.spec.connectors.ssh.password} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${data.spec.connectors.ssh.username}@${data.spec.connectors.ssh.sshhost}`;
+      break;
+    case 'ipmiact':
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} -e=. sol activate`;
+      break;
+    case 'ipmideact':
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} -e=. sol deactivate`;
+      break;
+    case 'ipmi_warm_reset':
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} chassis power reset warm`;
+      break;
+    case 'ipmi_cold_reset':
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} chassis power reset cold`;
+      break;
+    case 'ipmi_factory_reset':
+      command = `ipmitool -I lanplus -H ${data.spec.connectors.bmc.bmchost} -U ${data.spec.connectors.bmc.username} -P ${data.spec.connectors.bmc.password} chassis power reset`;
+      break;
+    case 'bmcconsole':
+      command = `sshpass -p ${data.spec.connectors.bmc.password} ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${data.spec.connectors.bmc.username}@${data.spec.connectors.bmc.bmchost}`;
+      break;
+    default:
+      return '';
+  }
+  return command;
 }
