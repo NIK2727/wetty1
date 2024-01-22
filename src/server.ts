@@ -86,6 +86,7 @@ export async function decorateServerWithSsh(
     try {
       if (parts[parts.length - 1] === 'playground') {
         logger.info('Connection Playground');
+        command = defaultCommand
       } else {
         let engineResponse = await axios.get<ConnectorsResponse>(
           `${process.env.MDCAP_ENGINE_URL}/element/${parts[parts.length - 1]}`,
